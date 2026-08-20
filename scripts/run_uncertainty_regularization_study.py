@@ -37,6 +37,35 @@ SEEDS = (1, 2, 3)
 STEPS = 300  # matched across models; 3B cannot complete the prior 600-step budget reliably
 
 
+def apply_config(path: Path | None) -> None:
+    """Apply the portable YAML experiment definition when supplied."""
+    if path is None:
+        return
+    try:
+        import yaml
+    except ImportError as exc:  # pragma: no cover - optional CLI integration
+        raise SystemExit("--config requires PyYAML; install the [hf] extra") from exc
+    config = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    global LAMBDAS, SEEDS, STEPS
+    if "lambdas" in config:
+        LAMBDAS = tuple(float(value) for value in config["lambdas"])
+    if "seeds" in config:
+        SEEDS = tuple(int(value) for value in config["seeds"])
+    if "steps" in config:
+        STEPS = int(config["steps"])
+    for model_key, values in (config.get("models") or {}).items():
+        if model_key in MODELS:
+            if "name" in values:
+                MODELS[model_key]["model"] = values["name"]
+            if "model" in values:
+                MODELS[model_key]["model"] = values["model"]
+            if "quantization" in values:
+                MODELS[model_key]["quantization"] = values["quantization"]
+    for dataset_key, path_value in (config.get("evaluation") or {}).items():
+        if dataset_key in DATASETS:
+            DATASETS[dataset_key]["path"] = Path(path_value)
+
+
 def clear_cuda() -> None:
     gc.collect()
     try:
@@ -167,6 +196,7 @@ def main() -> int:
     parser.add_argument("--train-only", action="store_true", help="train selected masks without scoring")
     parser.add_argument("--resume", action="store_true", help="reuse existing training artifacts")
     args = parser.parse_args()
+    apply_config(args.config)
     if args.array_index is not None:
         if not 0 <= args.array_index < len(MODELS) * len(LAMBDAS) * len(SEEDS):
             raise SystemExit("--array-index must be in [0, 23]")
