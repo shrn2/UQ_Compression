@@ -1,0 +1,40 @@
+# Python and local environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.runtime/
+.mypy_cache/
+.ruff_cache/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Experiment outputs and downloaded data/models
+runs/
+data/
+checkpoints/
+models/
+hf-cache/
+*.npz
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+*.bin
+
+# Keep lightweight run documentation and manifests if explicitly staged.
+!runs/**/RUN.md
+!runs/**/README.md
+!runs/**/manifest.json
+!runs/**/analysis_manifest.json
+!runs/**/validation.json
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

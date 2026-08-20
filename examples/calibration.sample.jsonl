@@ -1,0 +1,3 @@
+{"id":"science-1","dataset":"arc","prompt":"Question: Which force pulls objects toward Earth?\nAnswer:","choices":[" gravity"," magnetism"," friction"," electricity"],"answer":0}
+{"id":"math-1","dataset":"math","prompt":"Question: What is 7 multiplied by 6?\nAnswer:","choices":[" 36"," 40"," 42"," 48"],"answer":2}
+{"id":"knowledge-1","dataset":"mmlu","prompt":"Question: Water freezes at what temperature on the Celsius scale?\nAnswer:","choices":[" 0 degrees"," 32 degrees"," 100 degrees"," -100 degrees"],"answer":0}
