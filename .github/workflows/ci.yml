@@ -14,7 +14,9 @@ jobs:
           python-version: "3.12"
       - name: Install package and test dependencies
         run: python -m pip install -e ".[test]"
+      - name: Validate supported configuration
+        run: python -c "from dualkd.config import load_config; load_config('configs/experiment.yaml')"
       - name: Compile Python sources
-        run: python -m compileall -q src scripts
+        run: python -m compileall -q src/dualkd scripts
       - name: Run tests
         run: pytest -q
