@@ -1,0 +1,93 @@
+{
+  "bootstrap_replicates": 5000,
+  "choice_objective": "full differentiable length-normalized continuation likelihood",
+  "counts": {
+    "bootstrap": 144,
+    "cascade": 1152,
+    "evaluation_summary": 96,
+    "per_example": 615696,
+    "training_audit": 96,
+    "validation_summary": 96
+  },
+  "dataset_models": {
+    "arc_challenge": [
+      "1p5b_bf16",
+      "3b_bf16"
+    ],
+    "hellaswag": [
+      "1p5b_bf16",
+      "3b_bf16"
+    ],
+    "mmlu_aux": [
+      "1p5b_bf16",
+      "3b_bf16"
+    ],
+    "mmlu_pro": [
+      "1p5b_bf16",
+      "3b_bf16"
+    ]
+  },
+  "datasets": {
+    "arc_challenge": {
+      "label": "ARC-Challenge",
+      "partition_counts": {
+        "evaluation": 1172,
+        "gate_training": 1119,
+        "lambda_selection": 299
+      },
+      "protocol": "official disjoint splits"
+    },
+    "hellaswag": {
+      "label": "HellaSwag",
+      "partition_counts": {
+        "evaluation": 8034,
+        "gate_training": 39905,
+        "lambda_selection": 2008
+      },
+      "protocol": "official train for gates; deterministic 20/80 split of labeled validation for selection/evaluation"
+    },
+    "mmlu_aux": {
+      "label": "MMLU-AUX",
+      "partition_counts": {
+        "evaluation": 14042,
+        "gate_training": 99842,
+        "lambda_selection": 1531
+      },
+      "protocol": "official auxiliary_train/validation/test splits"
+    },
+    "mmlu_pro": {
+      "label": "MMLU-Pro",
+      "partition_counts": {
+        "evaluation": 2406,
+        "gate_training": 9626,
+        "lambda_selection": 70
+      },
+      "protocol": "category-stratified internal 80/20 split of official test; official validation for selection"
+    }
+  },
+  "epochs": 2,
+  "method_definitions": {
+    "dual_kl": "teacher-to-student KL with global entropy-equality dual ascent",
+    "kl_only": "teacher-to-student KL",
+    "ubkl": "teacher-entropy-balanced forward and reverse KL",
+    "upgd": "KL plus entropy, margin, and robust stratum terms at lambda_UQ=1"
+  },
+  "methods": [
+    "kl_only",
+    "upgd",
+    "ubkl",
+    "dual_kl"
+  ],
+  "models": [
+    "1p5b_bf16",
+    "3b_bf16"
+  ],
+  "retentions": [
+    0.25,
+    0.5,
+    0.75
+  ],
+  "sampling": "exact without-replacement epochs; every example appears exactly twice",
+  "seed": 1,
+  "study": "iter19_corrected_multidataset"
+}

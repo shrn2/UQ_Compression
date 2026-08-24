@@ -1,0 +1,39 @@
+{
+  "bootstrap_replicates": 5000,
+  "cascade_routing_score": "compressed entropy only",
+  "counts": {
+    "cascade_bootstrap_rows": 108,
+    "cascade_rows": 2592,
+    "error_bootstrap_rows": 162,
+    "error_per_seed": 216,
+    "error_per_slice": 108,
+    "per_example": 110592
+  },
+  "datasets": [
+    "HellaSwag",
+    "ARC-Challenge",
+    "MMLU auxiliary"
+  ],
+  "error_detection_primary_score": "compressed entropy",
+  "evaluation_partition": "final held-out evaluation",
+  "mechanistic_entropy_mae_error_auroc_spearman": -0.14118654985850249,
+  "methods": [
+    "one_shot",
+    "flap_wifv",
+    "kl_only",
+    "selected_upgd"
+  ],
+  "models": [
+    "1p5b_bf16",
+    "3b_bf16",
+    "7b_bf16"
+  ],
+  "random_replicates": 20,
+  "retentions": [
+    0.25,
+    0.5,
+    0.75
+  ],
+  "selected_lambda_source": "validation selection_rows from existing Iteration 17 analysis manifests",
+  "study": "iter17_downstream_tasks"
+}

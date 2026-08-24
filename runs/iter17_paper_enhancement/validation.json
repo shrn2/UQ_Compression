@@ -1,0 +1,1082 @@
+{
+  "checks": [
+    {
+      "detail": "",
+      "name": "dataset counts",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "calibration_train IDs unique",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "calibration_train has three datasets",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "selection IDs unique",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "selection has three datasets",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "evaluation IDs unique",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "evaluation has three datasets",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "partitions disjoint",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 BF16 calibration",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 shape",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 nine balanced cells",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.75 lambda=0.0 seed=1 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.75 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.75 lambda=0.0 seed=2 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.75 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.75 lambda=0.0 seed=3 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.75 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.75 lambda=0.5 seed=1 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.75 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.75 lambda=0.5 seed=2 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.75 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.75 lambda=0.5 seed=3 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.75 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.75 lambda=1.0 seed=1 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.75 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.75 lambda=1.0 seed=2 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.75 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.75 lambda=1.0 seed=3 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.75 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.5 lambda=0.0 seed=1 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.5 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.5 lambda=0.0 seed=2 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.5 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.5 lambda=0.0 seed=3 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.5 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.5 lambda=0.5 seed=1 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.5 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.5 lambda=0.5 seed=2 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.5 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.5 lambda=0.5 seed=3 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.5 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.5 lambda=1.0 seed=1 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.5 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.5 lambda=1.0 seed=2 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.5 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.5 lambda=1.0 seed=3 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.5 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.25 lambda=0.0 seed=1 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.25 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.25 lambda=0.0 seed=2 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.25 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.25 lambda=0.0 seed=3 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.25 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.25 lambda=0.5 seed=1 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.25 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.25 lambda=0.5 seed=2 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.25 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.25 lambda=0.5 seed=3 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.25 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.25 lambda=1.0 seed=1 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.25 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.25 lambda=1.0 seed=2 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.25 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.25 lambda=1.0 seed=3 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 0.25 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities flap_wifv_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities flap_wifv_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities flap_wifv_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities one_shot_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities one_shot_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities one_shot_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities random_seed1_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities random_seed1_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities random_seed1_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities random_seed2_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities random_seed2_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities random_seed2_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities random_seed3_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities random_seed3_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities random_seed3_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0.5_seed_1_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0.5_seed_1_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0.5_seed_1_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0.5_seed_2_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0.5_seed_2_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0.5_seed_2_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0.5_seed_3_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0.5_seed_3_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0.5_seed_3_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0_seed_1_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0_seed_1_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0_seed_1_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0_seed_2_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0_seed_2_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0_seed_2_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0_seed_3_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0_seed_3_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0_seed_3_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_1_seed_1_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_1_seed_1_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_1_seed_1_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_1_seed_2_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_1_seed_2_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_1_seed_2_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_1_seed_3_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_1_seed_3_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_1_seed_3_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 BF16 calibration",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 shape",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 nine balanced cells",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.75 lambda=0.0 seed=1 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.75 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.75 lambda=0.0 seed=2 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.75 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.75 lambda=0.0 seed=3 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.75 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.75 lambda=0.5 seed=1 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.75 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.75 lambda=0.5 seed=2 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.75 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.75 lambda=0.5 seed=3 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.75 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.75 lambda=1.0 seed=1 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.75 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.75 lambda=1.0 seed=2 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.75 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.75 lambda=1.0 seed=3 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.75 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.5 lambda=0.0 seed=1 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.5 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.5 lambda=0.0 seed=2 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.5 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.5 lambda=0.0 seed=3 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.5 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.5 lambda=0.5 seed=1 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.5 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.5 lambda=0.5 seed=2 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.5 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.5 lambda=0.5 seed=3 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.5 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.5 lambda=1.0 seed=1 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.5 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.5 lambda=1.0 seed=2 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.5 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.5 lambda=1.0 seed=3 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.5 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.25 lambda=0.0 seed=1 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.25 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.25 lambda=0.0 seed=2 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.25 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.25 lambda=0.0 seed=3 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.25 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.25 lambda=0.5 seed=1 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.25 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.25 lambda=0.5 seed=2 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.25 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.25 lambda=0.5 seed=3 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.25 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.25 lambda=1.0 seed=1 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.25 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.25 lambda=1.0 seed=2 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.25 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.25 lambda=1.0 seed=3 600 steps",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 0.25 exact mask",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities flap_wifv_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities flap_wifv_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities flap_wifv_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities one_shot_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities one_shot_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities one_shot_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities random_seed1_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities random_seed1_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities random_seed1_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities random_seed2_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities random_seed2_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities random_seed2_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities random_seed3_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities random_seed3_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities random_seed3_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0.5_seed_1_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0.5_seed_1_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0.5_seed_1_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0.5_seed_2_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0.5_seed_2_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0.5_seed_2_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0.5_seed_3_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0.5_seed_3_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0.5_seed_3_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0_seed_1_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0_seed_1_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0_seed_1_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0_seed_2_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0_seed_2_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0_seed_2_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0_seed_3_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0_seed_3_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_0_seed_3_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_1_seed_1_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_1_seed_1_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_1_seed_1_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_1_seed_2_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_1_seed_2_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_1_seed_2_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_1_seed_3_retain_025.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_1_seed_3_retain_050.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "finite probabilities upgd_lambda_1_seed_3_retain_075.npz",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "54 learned masks",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "analysis has all selected rows",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "analysis has paired comparisons",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "physical exports complete",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "1p5b_bf16 deployment matrix",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "3b_bf16 deployment matrix",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "deployment measurements finite",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "report artifact structure",
+      "passed": true
+    },
+    {
+      "detail": "",
+      "name": "portable report exists",
+      "passed": true
+    }
+  ],
+  "passed": 215,
+  "status": "passed",
+  "total": 215
+}
