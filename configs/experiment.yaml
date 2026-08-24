@@ -1,0 +1,93 @@
+study: dual_kd_vs_kl
+output_root: runs/dual_kd_vs_kl
+source_root: runs/dual_kd_vs_kl_inputs
+
+methods:
+  - kl_only
+  - dual_kl
+
+models:
+  1p5b_bf16: Qwen/Qwen2.5-1.5B-Instruct
+  3b_bf16: Qwen/Qwen2.5-3B-Instruct
+
+datasets:
+  arc_challenge:
+    label: ARC-Challenge
+    hub_dataset: allenai/ai2_arc
+    hub_config: ARC-Challenge
+    source_splits:
+      gate_training: train
+      lambda_selection: validation
+      evaluation: test
+    expected:
+      gate_training: 1119
+      lambda_selection: 299
+      evaluation: 1172
+    protocol: official disjoint train/validation/test splits
+  mmlu_aux:
+    label: MMLU-AUX
+    hub_dataset: cais/mmlu
+    hub_config: all
+    source_splits:
+      gate_training: auxiliary_train
+      lambda_selection: validation
+      evaluation: test
+    expected:
+      gate_training: 99842
+      lambda_selection: 1531
+      evaluation: 14042
+    protocol: official auxiliary_train/validation/test splits
+  mmlu_pro:
+    label: MMLU-Pro
+    hub_dataset: TIGER-Lab/MMLU-Pro
+    hub_config: default
+    source_splits:
+      lambda_selection: validation
+      development_pool: test
+    expected:
+      gate_training: 9626
+      lambda_selection: 70
+      evaluation: 2406
+    protocol: category-stratified 80/20 internal split of labeled official test
+  hellaswag:
+    label: HellaSwag
+    hub_dataset: Rowan/hellaswag
+    hub_config: default
+    source_splits:
+      gate_training: train
+      development_pool: validation
+    expected:
+      gate_training: 39905
+      lambda_selection: 2008
+      evaluation: 8034
+    protocol: official train plus deterministic 20/80 split of labeled validation
+
+retentions:
+  - 0.75
+  - 0.50
+  - 0.25
+
+training:
+  seed: 1
+  epochs: 2
+  per_stratum: 4
+  learning_rate: 0.05
+  dual_learning_rate: 0.05
+  start_temperature: 0.5
+  end_temperature: 0.1
+  start_noise: 0.5
+  end_noise: 0.05
+  gradient_checkpointing: true
+  choice_microbatch_size:
+    arc_challenge: 6
+    mmlu_aux: 6
+    mmlu_pro: 6
+    hellaswag: 2
+
+evaluation:
+  bootstrap_replicates: 5000
+  batch_size:
+    arc_challenge: 32
+    mmlu_aux: 32
+    mmlu_pro: 32
+    hellaswag: 16

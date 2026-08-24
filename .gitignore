@@ -1,13 +1,23 @@
 # Python and local environments
 __pycache__/
 *.py[cod]
+*.egg-info/
+build/
+dist/
 .pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
 .venv/
 venv/
 .runtime/
 .cache/
 .mypy_cache/
 .ruff_cache/
+.hypothesis/
+.ipynb_checkpoints/
+graphify-out/
 
 # Secrets and local configuration
 .env
@@ -15,27 +25,63 @@ venv/
 !.env.example
 
 # Experiment outputs and downloaded data/models
-runs/
-data/
-checkpoints/
-models/
-hf-cache/
+/runs/**
+!/runs/**/
+/data/
+/checkpoints/
+/models/
+/hf-cache/
+/hpc/
+*.npy
 *.npz
+*.arrow
+*.parquet
 *.safetensors
 *.ckpt
 *.pt
 *.pth
 *.bin
+/wandb/
+/logs/
+slurm-*.out
+slurm-*.err
 
-# Keep lightweight run documentation and manifests if explicitly staged.
-!runs/**/RUN.md
-!runs/**/README.md
-!runs/**/manifest.json
-!runs/**/analysis_manifest.json
-!runs/**/validation.json
+# Keep lightweight run documentation and manifests visible to Git.
+!/runs/**/RUN.md
+!/runs/**/README.md
+!/runs/**/manifest.json
+!/runs/**/analysis_manifest.json
+!/runs/**/validation.json
+
+# LaTeX build intermediates (source, generated figures/tables, and PDFs remain visible)
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.log
+*.out
+*.synctex.gz
+*.toc
+*.xdv
+_minted-*/
+
+# Local agent/tooling state and archives
+.agents/
+.claude/
+.codex/
+codex-sessions*.tgz
+
+# Independently versioned paper repository
+/paper/light2026_dualkd/
 
 # OS/editor files
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+*.swp
+*.swo
+*~

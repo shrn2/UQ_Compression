@@ -3,29 +3,29 @@ requires = ["hatchling>=1.24"]
 build-backend = "hatchling.build"
 
 [project]
-name = "tuac"
-version = "0.1.0"
-description = "Teacher-uncertainty-aware mixed-precision compression research toolkit"
+name = "dual-kd-compression"
+version = "1.0.0"
+description = "Vanilla KL and Dual-constrained KD for structured FFN gate compression"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = ["numpy>=1.24"]
+dependencies = [
+  "numpy>=1.24",
+  "pyyaml>=6.0",
+]
 
 [project.optional-dependencies]
-hf = [
+experiment = [
   "torch>=2.2",
   "transformers>=4.44",
   "accelerate>=0.33",
-  "pyyaml>=6.0",
+  "pyarrow>=16.0",
+  "wandb>=0.19",
 ]
 test = ["pytest>=8.0"]
 
-[project.scripts]
-tuac = "tuac.cli:main"
-
 [tool.hatch.build.targets.wheel]
-packages = ["src/tuac"]
+packages = ["src/dualkd"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
-
