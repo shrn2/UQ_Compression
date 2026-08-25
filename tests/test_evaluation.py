@@ -4,6 +4,7 @@ from dualkd.evaluation import (
     cascade_curve,
     error_detection_metrics,
     paired_bootstrap_binary_ranking_difference,
+    threshold_compatibility,
 )
 
 
@@ -17,6 +18,23 @@ def test_error_detection_uses_errors_as_positive_class():
     assert result["error_rate"] == 0.5
     assert result["entropy_auroc"] == 1.0
     assert result["entropy_auprc"] == 1.0
+
+
+def test_threshold_compatibility_uses_one_teacher_defined_threshold():
+    rows = threshold_compatibility(
+        np.array([0.1, 0.2, 0.8, 0.9]),
+        np.array([0.1, 0.7, 0.6, 0.95]),
+        [0.5],
+    )
+    assert rows == [
+        {
+            "target_teacher_rate": 0.5,
+            "threshold": 0.5,
+            "teacher_rate": 0.5,
+            "student_rate": 0.75,
+            "disagreement": 0.25,
+        }
+    ]
 
 
 def test_cascade_defers_highest_uncertainty():

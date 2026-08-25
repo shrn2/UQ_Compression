@@ -24,6 +24,8 @@ DEFERRAL_RATES = (
     1.0,
 )
 
+TEACHER_ESCALATION_RATES = (0.05, 0.10, 0.20, 0.30)
+
 
 def _metric_or_nan(metric, scores: np.ndarray, targets: np.ndarray, name: str) -> float:
     if np.all(targets) or not np.any(targets):
@@ -68,6 +70,42 @@ def error_detection_metrics(
             binary_average_precision, -margin, targets, "margin AUPRC"
         ),
     }
+
+
+def threshold_compatibility(
+    teacher_entropy: np.ndarray,
+    student_entropy: np.ndarray,
+    escalation_rates=TEACHER_ESCALATION_RATES,
+) -> list[dict[str, float]]:
+    """Compare teacher and student decisions under teacher-defined thresholds."""
+    teacher = np.asarray(teacher_entropy, dtype=np.float64)
+    student = np.asarray(student_entropy, dtype=np.float64)
+    if (
+        teacher.ndim != 1
+        or teacher.shape != student.shape
+        or teacher.size == 0
+        or np.any(~np.isfinite(teacher))
+        or np.any(~np.isfinite(student))
+    ):
+        raise ValueError("teacher and student entropies must be aligned finite vectors")
+
+    rows = []
+    for rate in (float(value) for value in escalation_rates):
+        if not 0.0 < rate < 1.0:
+            raise ValueError("teacher escalation rates must lie strictly between zero and one")
+        threshold = float(np.quantile(teacher, 1.0 - rate))
+        teacher_flag = teacher > threshold
+        student_flag = student > threshold
+        rows.append(
+            {
+                "target_teacher_rate": rate,
+                "threshold": threshold,
+                "teacher_rate": float(teacher_flag.mean()),
+                "student_rate": float(student_flag.mean()),
+                "disagreement": float((teacher_flag != student_flag).mean()),
+            }
+        )
+    return rows
 
 
 def cascade_curve(
