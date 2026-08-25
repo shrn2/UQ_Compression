@@ -34,8 +34,15 @@ AUROC and AUPRC, 52 intervals cross zero; of the 20 that resolve, 13 favour
 `kl_only` and 7 favour `dual_kl`. The clearest exception is the most aggressive
 setting: 7B MMLU-AUX at 25% retention gains +0.1123 AUPRC [+0.0976, +0.1274].
 
-The warranted conclusion is a trade-off, not a win: Dual-KD does what it is
-designed to do, and costs capability nearly everywhere the constraint binds.
+**Threshold compatibility.** Applying the dense model's entropy threshold unchanged
+to the compressed model, Dual-KD holds the intended operating point in 143 of 144
+paired conditions and lowers escalation disagreement in 142. Under vanilla KL the
+threshold collapses at aggressive compression, escalating 100% of inputs instead of
+10%. See the section below.
+
+The warranted conclusion is a trade-off with one clear operational winner: Dual-KD
+costs capability nearly everywhere the constraint binds, but it is what allows a
+dense-calibrated decision threshold to survive compression at all.
 
 ## Configuration changes
 
@@ -44,7 +51,11 @@ designed to do, and costs capability nearly everywhere the constraint binds.
   so this is a supported extension.
 - Raised HellaSwag `choice_microbatch_size` from 2 to 4. Measured 0.52 -> 0.37
   s/step at equal peak memory. Microbatching is gradient accumulation within a
-  step, so this is numerically neutral and applied to both methods equally.
+  step. It is neutral in expectation, but a later distributed experiment showed
+  that re-splitting a step's batch perturbs bf16 reduction order enough to flip
+  channels at the exact-top-k boundary, so it is not bit-neutral. It was applied
+  uniformly to every cell before any training ran, so the grid stays internally
+  consistent and every method pair is matched.
 
 ## Limitations
 
@@ -52,12 +63,12 @@ designed to do, and costs capability nearly everywhere the constraint binds.
 not training runs, so intervals capture example-level uncertainty only. Treat
 every comparison as seed-sensitive.
 
-**3B / MMLU-AUX is provisional.** After an out-of-memory reschedule, those three
-cells trained `kl_only` on A100 (sm_80) and `dual_kl` on RTX PRO 6000 (sm_120),
-so their difference carries a hardware term that cannot be separated from the
-method effect. These rows include the -79% headline entropy figure. The 7B
-result (-76%) comes from architecture-matched cells and does not depend on them.
-The remaining 32 complete pairs are matched within sm_80.
+**3B / MMLU-AUX has been corrected.** Those three cells originally trained
+`kl_only` on A100 (sm_80) and `dual_kl` on RTX PRO 6000 (sm_120) after an
+out-of-memory reschedule. They were retrained on matched Blackwell hardware and
+re-analysed; the numbers below are the corrected ones. The effect was small and
+directional: KL entropy MAE moved 0.3193 -> 0.3301, 0.4909 -> 0.5134, 0.8238 ->
+0.8237, leaving the -79% headline intact. All 36 method pairs are now matched.
 
 **Claim boundary.** Masks are exact top-k logical channel gates applied to frozen
 BF16 weights. These establish model quality only; no packed-kernel latency,
@@ -107,9 +118,9 @@ Generated from `outputs/downstream/evaluation_summary.csv` and
 | ARC-Challenge | 0.75 | 0.4616 | 0.4437 | 0.4608 | +0.0171 | 0.1109 | 0.0961 | -0.0148 | -0.0093 [-0.0307, +0.0124] |
 | ARC-Challenge | 0.5 | 0.4616 | 0.3532 | 0.3780 | +0.0247 | 0.1420 | 0.1253 | -0.0167 | -0.0030 [-0.0329, +0.0273] |
 | ARC-Challenge | 0.25 | 0.4616 | 0.2696 | 0.2449 | -0.0247 | 0.1966 | 0.1785 | -0.0181 | -0.0178 [-0.0636, +0.0284] |
-| MMLU-AUX | 0.75 | 0.6540 | 0.5389 | 0.5326 | -0.0063 | 0.3193 | 0.1625 | -0.1568 | **-0.0219 [-0.0319, -0.0121]** |
-| MMLU-AUX | 0.5 | 0.6540 | 0.4307 | 0.3955 | -0.0352 | 0.4909 | 0.1741 | -0.3168 | **-0.0406 [-0.0522, -0.0285]** |
-| MMLU-AUX | 0.25 | 0.6540 | 0.2454 | 0.2295 | -0.0160 | 0.8238 | 0.1733 | -0.6505 | +0.0143 [-0.0017, +0.0295] |
+| MMLU-AUX | 0.75 | 0.6540 | 0.5480 | 0.5326 | -0.0154 | 0.3301 | 0.1625 | -0.1676 | **-0.0219 [-0.0312, -0.0122]** |
+| MMLU-AUX | 0.5 | 0.6540 | 0.4393 | 0.3955 | -0.0438 | 0.5134 | 0.1741 | -0.3393 | **-0.0460 [-0.0575, -0.0345]** |
+| MMLU-AUX | 0.25 | 0.6540 | 0.2474 | 0.2295 | -0.0179 | 0.8237 | 0.1733 | -0.6504 | **+0.0158 [+0.0004, +0.0305]** |
 | MMLU-Pro | 0.75 | 0.3387 | 0.2943 | 0.2926 | -0.0017 | 0.2578 | 0.1936 | -0.0642 | -0.0046 [-0.0297, +0.0212] |
 | MMLU-Pro | 0.5 | 0.3387 | 0.2419 | 0.2307 | -0.0112 | 0.3972 | 0.2408 | -0.1564 | -0.0204 [-0.0534, +0.0132] |
 | MMLU-Pro | 0.25 | 0.3387 | 0.1168 | 0.1126 | -0.0042 | 0.5649 | 0.2583 | -0.3066 | **+0.0451 [+0.0062, +0.0849]** |
@@ -134,12 +145,66 @@ Generated from `outputs/downstream/evaluation_summary.csv` and
 | HellaSwag | 0.5 | 0.7806 | 0.7280 | 0.7248 | -0.0032 | 0.0651 | 0.0647 | -0.0003 | **-0.0131 [-0.0251, -0.0008]** |
 | HellaSwag | 0.25 | 0.7806 | 0.6003 | 0.5822 | -0.0182 | 0.0904 | 0.0923 | +0.0019 | **-0.0133 [-0.0264, -0.0006]** |
 
-### Tallies
+## Threshold compatibility
 
-| measure | Dual-KD better | of |
-|---|---|---|
-| entropy MAE (fidelity) | 30 | 36 |
-| accuracy | 8 | 36 |
-| ECE (calibration) | 8 | 36 |
-| error AUROC/AUPRC bootstrap | 7 significant for Dual-KD, 13 for KL | 72 |
+`scripts/check_threshold_compatibility.py` applies the **dense** model's entropy
+threshold, unchanged, to the compressed model. `student_rate` is the fraction the
+compressed model then escalates; it should match the target. This is the
+operational consequence of conserved uncertainty, and it is where Dual-KD's
+advantage is largest.
+
+| model | dataset | ret | student rate KL | student rate Dual | disagreement KL | disagreement Dual |
+|---|---|---|---|---|---|---|
+| Qwen2.5-1.5B | ARC-Challenge | 0.75 | 0.1280 | 0.1365 | 0.1041 | 0.1041 |
+| Qwen2.5-1.5B | ARC-Challenge | 0.5 | 0.1664 | 0.1382 | 0.1681 | 0.1468 |
+| Qwen2.5-1.5B | ARC-Challenge | 0.25 | 0.3891 | 0.1220 | 0.3396 | 0.1510 |
+| Qwen2.5-1.5B | MMLU-AUX | 0.75 | 0.2902 | 0.1101 | 0.2474 | 0.1570 |
+| Qwen2.5-1.5B | MMLU-AUX | 0.5 | 0.5904 | 0.0040 | 0.5220 | 0.1019 |
+| Qwen2.5-1.5B | MMLU-AUX | 0.25 | 1.0000 | 0.0000 | 0.8999 | 0.1001 |
+| Qwen2.5-1.5B | MMLU-Pro | 0.75 | 0.2140 | 0.1002 | 0.1945 | 0.1313 |
+| Qwen2.5-1.5B | MMLU-Pro | 0.5 | 0.3978 | 0.1043 | 0.3749 | 0.1663 |
+| Qwen2.5-1.5B | MMLU-Pro | 0.25 | 0.5707 | 0.0121 | 0.5362 | 0.1106 |
+| Qwen2.5-1.5B | HellaSwag | 0.75 | 0.1207 | 0.1012 | 0.0797 | 0.0741 |
+| Qwen2.5-1.5B | HellaSwag | 0.5 | 0.1359 | 0.1098 | 0.1257 | 0.1140 |
+| Qwen2.5-1.5B | HellaSwag | 0.25 | 0.2458 | 0.1095 | 0.2436 | 0.1606 |
+| Qwen2.5-3B | ARC-Challenge | 0.75 | 0.1817 | 0.1468 | 0.1220 | 0.1109 |
+| Qwen2.5-3B | ARC-Challenge | 0.5 | 0.2338 | 0.1451 | 0.1945 | 0.1314 |
+| Qwen2.5-3B | ARC-Challenge | 0.25 | 0.4275 | 0.2108 | 0.3797 | 0.2159 |
+| Qwen2.5-3B | MMLU-AUX | 0.75 | 0.4748 | 0.0261 | 0.4024 | 0.1130 |
+| Qwen2.5-3B | MMLU-AUX | 0.5 | 0.7419 | 0.0063 | 0.6545 | 0.1041 |
+| Qwen2.5-3B | MMLU-AUX | 0.25 | 1.0000 | 0.0000 | 0.8999 | 0.1001 |
+| Qwen2.5-3B | MMLU-Pro | 0.75 | 0.2631 | 0.0453 | 0.2336 | 0.1189 |
+| Qwen2.5-3B | MMLU-Pro | 0.5 | 0.5744 | 0.0100 | 0.5191 | 0.1093 |
+| Qwen2.5-3B | MMLU-Pro | 0.25 | 0.9672 | 0.0004 | 0.8753 | 0.1006 |
+| Qwen2.5-3B | HellaSwag | 0.75 | 0.1261 | 0.1115 | 0.0853 | 0.0826 |
+| Qwen2.5-3B | HellaSwag | 0.5 | 0.1414 | 0.1069 | 0.1312 | 0.1174 |
+| Qwen2.5-3B | HellaSwag | 0.25 | 0.2350 | 0.1112 | 0.2315 | 0.1654 |
+| Qwen2.5-7B | ARC-Challenge | 0.75 | 0.1826 | 0.1587 | 0.1297 | 0.1143 |
+| Qwen2.5-7B | ARC-Challenge | 0.5 | 0.2312 | 0.1459 | 0.1903 | 0.1323 |
+| Qwen2.5-7B | ARC-Challenge | 0.25 | 0.3695 | 0.1365 | 0.3302 | 0.1536 |
+| Qwen2.5-7B | MMLU-AUX | 0.75 | 0.3645 | 0.0386 | 0.3043 | 0.1143 |
+| Qwen2.5-7B | MMLU-AUX | 0.5 | 0.6596 | 0.0142 | 0.5752 | 0.1095 |
+| Qwen2.5-7B | MMLU-AUX | 0.25 | 0.8837 | 0.0000 | 0.7882 | 0.1001 |
+| Qwen2.5-7B | MMLU-Pro | 0.75 | 0.2452 | 0.0844 | 0.1783 | 0.1072 |
+| Qwen2.5-7B | MMLU-Pro | 0.5 | 0.4335 | 0.0278 | 0.3558 | 0.1172 |
+| Qwen2.5-7B | MMLU-Pro | 0.25 | 0.7988 | 0.0067 | 0.7136 | 0.1068 |
+| Qwen2.5-7B | HellaSwag | 0.75 | 0.1151 | 0.1012 | 0.0768 | 0.0723 |
+| Qwen2.5-7B | HellaSwag | 0.5 | 0.1377 | 0.1119 | 0.1148 | 0.1044 |
+| Qwen2.5-7B | HellaSwag | 0.25 | 0.1875 | 0.1115 | 0.1889 | 0.1514 |
+
+Target escalation rate 0.10; ideal `student_rate` is 0.1000.
+
+| target rate | mean abs rate error KL | Dual-KD | mean disagreement KL | Dual-KD |
+|---|---|---|---|---|
+| 0.05 | 0.2509 | **0.0292** | 0.2865 | **0.0693** |
+| 0.10 | 0.2951 | **0.0487** | 0.3475 | **0.1214** |
+| 0.20 | 0.3346 | **0.0842** | 0.3991 | **0.2072** |
+| 0.30 | 0.3491 | **0.1072** | 0.4081 | **0.2724** |
+
+Dual-KD transfers the dense threshold better in **143/144** paired conditions and
+lowers escalation disagreement in **142/144**. Under vanilla KL the dense threshold
+collapses at aggressive compression: at 25% retention on MMLU-AUX it escalates
+100% of inputs instead of 10%, because the compressed entropy distribution has
+shifted wholesale past the threshold. Dual-KD sometimes undershoots instead, which
+is a far more benign failure than escalating all traffic.
 

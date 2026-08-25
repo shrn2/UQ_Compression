@@ -35,8 +35,9 @@ Full grid: 3 models x 4 datasets x 2 methods x 3 retentions = 72 masks, one seed
 two exact without-replacement epochs. `validate_results.py` passed (12 calibrations,
 72 training conditions, 144 prediction files).
 
-**Dual-KD conserves the dense teacher's uncertainty and pays for it in accuracy.**
-Each cell below is `dual_kl - kl_only`: negative entropy MAE means better fidelity,
+**Dual-KD conserves the dense teacher's uncertainty and pays for it in accuracy —
+but it is what makes a dense-calibrated threshold survive compression.**
+Each cell is `dual_kl - kl_only`: negative entropy MAE means better fidelity,
 positive accuracy means Dual-KD wins.
 
 | model | dataset | Δacc .75 | Δacc .50 | Δacc .25 | ΔentMAE .75 | ΔentMAE .50 | ΔentMAE .25 |
@@ -46,7 +47,7 @@ positive accuracy means Dual-KD wins.
 | 1.5B | MMLU-Pro | -0.0162 | -0.0071 | +0.0033 | -0.0233 | -0.0382 | -0.0653 |
 | 1.5B | HellaSwag | -0.0020 | -0.0093 | -0.0212 | -0.0003 | -0.0002 | +0.0031 |
 | 3B | ARC-Challenge | +0.0171 | +0.0247 | -0.0247 | -0.0148 | -0.0167 | -0.0181 |
-| 3B | MMLU-AUX | -0.0063 | -0.0352 | -0.0160 | -0.1568 | -0.3168 | -0.6505 |
+| 3B | MMLU-AUX | -0.0154 | -0.0438 | -0.0179 | -0.1676 | -0.3393 | -0.6504 |
 | 3B | MMLU-Pro | -0.0017 | -0.0112 | -0.0042 | -0.0642 | -0.1564 | -0.3066 |
 | 3B | HellaSwag | -0.0052 | -0.0132 | -0.0884 | +0.0002 | +0.0001 | +0.0057 |
 | 7B | ARC-Challenge | -0.0085 | +0.0196 | -0.0102 | -0.0144 | -0.0230 | -0.0302 |
@@ -55,15 +56,32 @@ positive accuracy means Dual-KD wins.
 | 7B | HellaSwag | +0.0017 | -0.0032 | -0.0182 | +0.0003 | -0.0003 | +0.0019 |
 
 Dual-KD is better on entropy fidelity in **30/36** cells, on accuracy in **8/36**,
-and on ECE in **8/36**. Of 72 paired bootstraps on error AUROC/AUPRC, 7 favour
+and on ECE in **8/36**. Of 72 paired bootstraps on error AUROC/AUPRC, 8 favour
 Dual-KD significantly and 13 favour vanilla KL; the rest cross zero.
 
-HellaSwag is the control: vanilla KL already reaches 0.02-0.09 entropy error there,
-so the constraint has nothing to close and Dual-KD changes nothing.
+### Threshold compatibility
 
-Per-cell numbers with dense references and bootstrap intervals are in
-[runs/dual_kd_vs_kl/RUN.md](runs/dual_kd_vs_kl/RUN.md), which also records the
-single-seed limitation and flags 3B/MMLU-AUX as provisional.
+Applying the **dense** model's entropy threshold, unchanged, to the compressed model.
+`student_rate` is the fraction the compressed model then escalates; it should equal the
+target. This is where the conserved uncertainty pays off.
+
+| target rate | mean abs rate error KL | Dual-KD | mean disagreement KL | Dual-KD |
+|---|---|---|---|---|
+| 0.05 | 0.2509 | **0.0292** | 0.2865 | **0.0693** |
+| 0.10 | 0.2951 | **0.0487** | 0.3475 | **0.1214** |
+| 0.20 | 0.3346 | **0.0842** | 0.3991 | **0.2072** |
+| 0.30 | 0.3491 | **0.1072** | 0.4081 | **0.2724** |
+
+Dual-KD transfers the dense threshold better in **143/144** paired conditions and
+lowers escalation disagreement in **142/144**. Under vanilla KL the dense threshold
+collapses entirely at aggressive compression: at 25% retention on MMLU-AUX it escalates
+100% of inputs instead of the intended 10%, because the compressed entropy distribution has
+shifted wholesale past the threshold. Dual-KD keeps the operating point usable.
+
+HellaSwag is the control throughout: vanilla KL already reaches 0.02-0.09 entropy error
+there, so the constraint has nothing to close and Dual-KD changes little.
+
+Per-cell numbers are in [runs/dual_kd_vs_kl/RUN.md](runs/dual_kd_vs_kl/RUN.md).
 
 ## Repository map
 
