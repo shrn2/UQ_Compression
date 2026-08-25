@@ -29,6 +29,42 @@ The dense model weights stay frozen. Only stochastic exact-top-k gate logits
 are optimized; deterministic top-k masks are used for evaluation. Logical masks
 do not establish packed-kernel latency or energy savings.
 
+## Results
+
+Full grid: 3 models x 4 datasets x 2 methods x 3 retentions = 72 masks, one seed,
+two exact without-replacement epochs. `validate_results.py` passed (12 calibrations,
+72 training conditions, 144 prediction files).
+
+**Dual-KD conserves the dense teacher's uncertainty and pays for it in accuracy.**
+Each cell below is `dual_kl - kl_only`: negative entropy MAE means better fidelity,
+positive accuracy means Dual-KD wins.
+
+| model | dataset | Δacc .75 | Δacc .50 | Δacc .25 | ΔentMAE .75 | ΔentMAE .50 | ΔentMAE .25 |
+|---|---|---|---|---|---|---|---|
+| 1.5B | ARC-Challenge | +0.0017 | -0.0205 | +0.0026 | -0.0015 | -0.0055 | -0.0205 |
+| 1.5B | MMLU-AUX | +0.0011 | -0.0154 | -0.0039 | -0.0657 | -0.1779 | -0.3482 |
+| 1.5B | MMLU-Pro | -0.0162 | -0.0071 | +0.0033 | -0.0233 | -0.0382 | -0.0653 |
+| 1.5B | HellaSwag | -0.0020 | -0.0093 | -0.0212 | -0.0003 | -0.0002 | +0.0031 |
+| 3B | ARC-Challenge | +0.0171 | +0.0247 | -0.0247 | -0.0148 | -0.0167 | -0.0181 |
+| 3B | MMLU-AUX | -0.0063 | -0.0352 | -0.0160 | -0.1568 | -0.3168 | -0.6505 |
+| 3B | MMLU-Pro | -0.0017 | -0.0112 | -0.0042 | -0.0642 | -0.1564 | -0.3066 |
+| 3B | HellaSwag | -0.0052 | -0.0132 | -0.0884 | +0.0002 | +0.0001 | +0.0057 |
+| 7B | ARC-Challenge | -0.0085 | +0.0196 | -0.0102 | -0.0144 | -0.0230 | -0.0302 |
+| 7B | MMLU-AUX | -0.0023 | -0.0274 | -0.1127 | -0.1209 | -0.3102 | -0.4866 |
+| 7B | MMLU-Pro | -0.0029 | -0.0191 | -0.0432 | -0.0499 | -0.0896 | -0.1933 |
+| 7B | HellaSwag | +0.0017 | -0.0032 | -0.0182 | +0.0003 | -0.0003 | +0.0019 |
+
+Dual-KD is better on entropy fidelity in **30/36** cells, on accuracy in **8/36**,
+and on ECE in **8/36**. Of 72 paired bootstraps on error AUROC/AUPRC, 7 favour
+Dual-KD significantly and 13 favour vanilla KL; the rest cross zero.
+
+HellaSwag is the control: vanilla KL already reaches 0.02-0.09 entropy error there,
+so the constraint has nothing to close and Dual-KD changes nothing.
+
+Per-cell numbers with dense references and bootstrap intervals are in
+[runs/dual_kd_vs_kl/RUN.md](runs/dual_kd_vs_kl/RUN.md), which also records the
+single-seed limitation and flags 3B/MMLU-AUX as provisional.
+
 ## Repository map
 
 ```text
