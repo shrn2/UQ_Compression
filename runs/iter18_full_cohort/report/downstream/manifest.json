@@ -1,0 +1,72 @@
+{
+  "bootstrap_replicates": 5000,
+  "counts": {
+    "bootstrap": 48,
+    "cascade": 720,
+    "per_example": 203664,
+    "per_seed": 60,
+    "selection": 27,
+    "summary": 60
+  },
+  "datasets": [
+    "ARC-Challenge",
+    "MMLU auxiliary"
+  ],
+  "epochs": 2.0,
+  "excluded_pairs": [
+    "3b_bf16:mmlu_aux"
+  ],
+  "included_pairs": [
+    "1p5b_bf16:arc_challenge",
+    "1p5b_bf16:mmlu_aux",
+    "3b_bf16:arc_challenge"
+  ],
+  "lambda_values": {
+    "kl_only": 0.0,
+    "kl_uncertainty": 0.5,
+    "kl_uncertainty_full": 1.0
+  },
+  "method_scope": {
+    "dual_kl": [
+      "arc_challenge"
+    ]
+  },
+  "methods": [
+    "one_shot",
+    "flap_wifv",
+    "kl_only",
+    "kl_uncertainty",
+    "kl_uncertainty_full",
+    "dual_kl",
+    "selected_upgd"
+  ],
+  "models": [
+    "1p5b_bf16",
+    "3b_bf16"
+  ],
+  "official_splits": {
+    "evaluation": {
+      "ARC-Challenge": 1172,
+      "MMLU auxiliary": 14042
+    },
+    "gate_training": {
+      "ARC-Challenge": 1119,
+      "MMLU auxiliary": 99842
+    },
+    "lambda_selection": {
+      "ARC-Challenge": 299,
+      "MMLU auxiliary": 1531
+    }
+  },
+  "primary_comparison": "dual-constrained KL and KL+uncertainty versus forward KL-only",
+  "retentions": [
+    0.25,
+    0.5,
+    0.75
+  ],
+  "seed_policy": "initial results use seed 1; multi-seed sensitivity study deferred",
+  "seeds": [
+    1
+  ],
+  "study": "iter18_full_cohort"
+}
