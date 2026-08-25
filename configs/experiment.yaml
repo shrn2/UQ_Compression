@@ -9,6 +9,7 @@ methods:
 models:
   1p5b_bf16: Qwen/Qwen2.5-1.5B-Instruct
   3b_bf16: Qwen/Qwen2.5-3B-Instruct
+  7b_bf16: Qwen/Qwen2.5-7B-Instruct
 
 datasets:
   arc_challenge:
@@ -82,7 +83,7 @@ training:
     arc_challenge: 6
     mmlu_aux: 6
     mmlu_pro: 6
-    hellaswag: 2
+    hellaswag: 4
 
 evaluation:
   bootstrap_replicates: 5000
