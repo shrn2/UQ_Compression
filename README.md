@@ -38,38 +38,41 @@ per seed; the seeds are compared rather than pooled.
 
 **Dual-KD conserves the dense teacher's uncertainty. Its effect on accuracy is not
 resolved by three seeds, but it is what makes a dense-calibrated threshold survive
-compression.** Each cell is `dual_kl - kl_only`: negative entropy MAE means better
-fidelity, positive accuracy means Dual-KD wins. Entropy MAE is the mean over the
-three seeds. Accuracy is shown as the **range** across seeds, because in 15 of 36
-accuracy cells the sign is not stable across seeds.
+compression.** Each cell is `dual_kl - kl_only`, given as the **mean ± sample
+standard deviation over the three seeds**: negative entropy MAE means better
+fidelity, positive accuracy means Dual-KD wins. With n=3 the standard deviation is
+a noisy estimate, so read it as a rough scale for seed sensitivity rather than a
+confidence interval.
 
 | model | dataset | Δacc .75 | Δacc .50 | Δacc .25 | ΔentMAE .75 | ΔentMAE .50 | ΔentMAE .25 |
 |---|---|---|---|---|---|---|---|
-| 1.5B | ARC-Challenge | +0.0000 to +0.0085 | -0.0205 to -0.0009 | +0.0017 to +0.0026 | -0.0039 | -0.0035 | -0.0228 |
-| 1.5B | MMLU-AUX | +0.0011 to +0.0028 | -0.0154 to -0.0074 | -0.0204 to -0.0028 | -0.0741 | -0.1689 | -0.3417 |
-| 1.5B | MMLU-Pro | -0.0162 to +0.0029 | -0.0071 to +0.0033 | +0.0017 to +0.0033 | -0.0226 | -0.0394 | -0.0743 |
-| 1.5B | HellaSwag | -0.0047 to -0.0020 | -0.0102 to -0.0073 | -0.0212 to -0.0081 | -0.0003 | -0.0001 | +0.0009 |
-| 3B | ARC-Challenge | -0.0128 to +0.0171 | +0.0179 to +0.0265 | -0.0247 to +0.0111 | -0.0137 | -0.0155 | -0.0332 |
-| 3B | MMLU-AUX | -0.0154 to -0.0046 | -0.0749 to -0.0390 | -0.0212 to +0.0068 | -0.1636 | -0.3318 | -0.6464 |
-| 3B | MMLU-Pro | -0.0017 to +0.0112 | -0.0112 to -0.0087 | -0.0042 to +0.0062 | -0.0641 | -0.1535 | -0.3141 |
-| 3B | HellaSwag | -0.0052 to +0.0000 | -0.0132 to +0.0085 | -0.0884 to +0.0802 | -0.0004 | +0.0001 | -0.0080 |
-| 7B | ARC-Challenge | -0.0085 to -0.0034 | +0.0154 to +0.0410 | -0.0222 to +0.0119 | -0.0165 | -0.0205 | -0.0267 |
-| 7B | MMLU-AUX | -0.0023 to +0.0023 | -0.0391 to -0.0222 | -0.1269 to -0.1127 | -0.1292 | -0.2981 | -0.4863 |
-| 7B | MMLU-Pro | -0.0033 to +0.0021 | -0.0191 to -0.0033 | -0.0432 to +0.0507 | -0.0463 | -0.0878 | -0.2249 |
-| 7B | HellaSwag | -0.0010 to +0.0017 | -0.0032 to +0.0075 | -0.0291 to -0.0056 | -0.0007 | -0.0004 | -0.0005 |
+| 1.5B | ARC-Challenge | +0.0034 ± 0.0045 | -0.0082 ± 0.0107 | +0.0023 ± 0.0005 | -0.0039 ± 0.0024 | -0.0035 ± 0.0023 | -0.0228 ± 0.0025 |
+| 1.5B | MMLU-AUX | +0.0017 ± 0.0009 | -0.0111 ± 0.0040 | -0.0091 ± 0.0099 | -0.0741 ± 0.0076 | -0.1689 ± 0.0102 | -0.3417 ± 0.0075 |
+| 1.5B | MMLU-Pro | -0.0051 ± 0.0099 | -0.0004 ± 0.0058 | +0.0022 ± 0.0010 | -0.0226 ± 0.0007 | -0.0394 ± 0.0014 | -0.0743 ± 0.0099 |
+| 1.5B | HellaSwag | -0.0036 ± 0.0014 | -0.0090 ± 0.0015 | -0.0161 ± 0.0070 | -0.0003 ± 0.0001 | -0.0001 ± 0.0001 | +0.0009 ± 0.0023 |
+| 3B | ARC-Challenge | +0.0054 ± 0.0160 | +0.0230 ± 0.0045 | -0.0014 ± 0.0202 | -0.0137 ± 0.0010 | -0.0155 ± 0.0014 | -0.0332 ± 0.0152 |
+| 3B | MMLU-AUX | -0.0107 ± 0.0055 | -0.0526 ± 0.0195 | -0.0108 ± 0.0153 | -0.1636 ± 0.0066 | -0.3318 ± 0.0133 | -0.6464 ± 0.0067 |
+| 3B | MMLU-Pro | +0.0026 ± 0.0074 | -0.0104 ± 0.0014 | +0.0007 ± 0.0052 | -0.0641 ± 0.0038 | -0.1535 ± 0.0049 | -0.3141 ± 0.0101 |
+| 3B | HellaSwag | -0.0023 ± 0.0027 | -0.0042 ± 0.0113 | -0.0100 ± 0.0849 | -0.0004 ± 0.0006 | +0.0001 ± 0.0018 | -0.0080 ± 0.0142 |
+| 7B | ARC-Challenge | -0.0054 ± 0.0027 | +0.0253 ± 0.0137 | -0.0068 ± 0.0173 | -0.0165 ± 0.0018 | -0.0205 ± 0.0030 | -0.0267 ± 0.0039 |
+| 7B | MMLU-AUX | -0.0006 ± 0.0025 | -0.0296 ± 0.0086 | -0.1177 ± 0.0079 | -0.1292 ± 0.0119 | -0.2981 ± 0.0109 | -0.4863 ± 0.0009 |
+| 7B | MMLU-Pro | -0.0014 ± 0.0030 | -0.0087 ± 0.0090 | -0.0068 ± 0.0504 | -0.0463 ± 0.0037 | -0.0878 ± 0.0079 | -0.2249 ± 0.0544 |
+| 7B | HellaSwag | +0.0006 ± 0.0014 | +0.0015 ± 0.0055 | -0.0176 ± 0.0118 | -0.0007 ± 0.0009 | -0.0004 ± 0.0003 | -0.0005 ± 0.0023 |
 
 Counts per seed (seed 1 / 2 / 3). Dual-KD is better on entropy fidelity in
 **30 / 33 / 36** of 36 cells, on accuracy in **8 / 13 / 16**, and on ECE in
 **8 / 8 / 9**. Of 72 paired bootstraps on error AUROC/AUPRC per seed, **8 / 6 / 7**
 favour Dual-KD significantly and **13 / 11 / 9** favour vanilla KL; the rest cross zero.
 
-The entropy-fidelity result is stable: the seven cells whose sign disagrees across
-seeds are all HellaSwag, where the effect is within ±0.008 of zero. The accuracy
-result is not: the sign flips across seeds in 15 of 36 cells, and the single largest
-apparent accuracy cost in the earlier single-seed table (3B/HellaSwag at 0.25
-retention, -0.0884) spans -0.0884 to +0.0802 across seeds. Treat per-cell accuracy
-differences as seed noise unless the range excludes zero — 7B/MMLU-AUX at 0.25
-retention (-0.1269 to -0.1127) is the clearest case that does.
+The entropy-fidelity result is stable and the accuracy result is not. In **20 of 36**
+accuracy cells the absolute mean is smaller than the standard deviation, so the sign
+is not resolved by three seeds; the same is true of only **7 of 36** entropy MAE
+cells, all HellaSwag, where the effect is within ±0.008 of zero. The largest apparent
+accuracy cost in the earlier single-seed table, 3B/HellaSwag at 0.25 retention,
+was -0.0884; over three seeds it is **-0.0100 ± 0.0849**. Treat a per-cell accuracy
+difference as seed noise unless its mean clears its standard deviation — 7B/MMLU-AUX
+at 0.25 retention (-0.1177 ± 0.0079) is the clearest case that does, against
+entropy MAE effects such as -0.4863 ± 0.0009 in the same cell.
 
 ### Threshold compatibility
 
