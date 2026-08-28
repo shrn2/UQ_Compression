@@ -34,7 +34,10 @@ def mask_checksum(mask: np.ndarray) -> str:
     return hashlib.sha256(np.asarray(mask, dtype=np.int64).tobytes()).hexdigest()
 
 
-def train_one(config, root, source_root, model_key, dataset_key, method, retention, seed):
+def train_one(
+    config, root, source_root, model_key, dataset_key, method, retention, seed,
+    choice_microbatch_size=None,
+):
     output_dir = root / model_key / dataset_key / method / retention_tag(retention) / f"seed_{seed}"
     training_path = output_dir / "training.json"
     masks_path = output_dir / "masks.npz"
@@ -55,7 +58,11 @@ def train_one(config, root, source_root, model_key, dataset_key, method, retenti
         end_temperature=float(settings["end_temperature"]),
         start_noise=float(settings["start_noise"]),
         end_noise=float(settings["end_noise"]),
-        choice_microbatch_size=int(settings["choice_microbatch_size"][dataset_key]),
+        choice_microbatch_size=int(
+            choice_microbatch_size
+            if choice_microbatch_size is not None
+            else settings["choice_microbatch_size"][dataset_key]
+        ),
         seed=seed,
         gradient_checkpointing=bool(settings["gradient_checkpointing"]),
         device_map="auto",
@@ -178,6 +185,15 @@ def main() -> int:
     parser.add_argument("--retention", type=float)
     parser.add_argument("--seed", type=int)
     parser.add_argument("--batch-size", type=int)
+    parser.add_argument(
+        "--choice-microbatch-size",
+        type=int,
+        help=(
+            "Override the configured choice microbatch size for this run. Splits the "
+            "batch into more, smaller forward passes; the accumulated gradient is "
+            "unchanged, only its summation order and the peak activation memory."
+        ),
+    )
     parser.add_argument("--manifest-path", type=Path)
     args = parser.parse_args()
     config = load_config(args.config)
@@ -192,7 +208,10 @@ def main() -> int:
         methods = (args.method,) if args.method else SUPPORTED_METHODS
         retentions = (args.retention,) if args.retention is not None else config["retentions"]
         rows = [
-            train_one(config, root, source_root, args.model_key, args.dataset_key, method, retention, seed)
+            train_one(
+                config, root, source_root, args.model_key, args.dataset_key, method,
+                retention, seed, choice_microbatch_size=args.choice_microbatch_size,
+            )
             for method in methods
             for retention in retentions
         ]

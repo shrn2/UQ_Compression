@@ -10,7 +10,8 @@ The supported empirical grid is intentionally fixed:
 - datasets: ARC-Challenge, MMLU-AUX, MMLU-Pro, and HellaSwag;
 - methods: `kl_only` and `dual_kl`;
 - FFN retention: 25%, 50%, and 75%; and
-- default training: one seed and two exact without-replacement epochs.
+- default training: two exact without-replacement epochs; the reported grid uses
+  three gate-training seeds.
 
 Historical quantization, routing, UPGD regularization, UBKL, symmetric-KL, and
 other iteration-specific runners are not part of the supported codebase.
@@ -31,37 +32,52 @@ do not establish packed-kernel latency or energy savings.
 
 ## Results
 
-Full grid: 3 models x 4 datasets x 2 methods x 3 retentions = 72 masks, one seed,
-two exact without-replacement epochs. `validate_results.py` passed (12 calibrations,
-72 training conditions, 144 prediction files).
+Full grid: 3 models x 4 datasets x 2 methods x 3 retentions x 3 seeds = 216 masks,
+two exact without-replacement epochs, 432 prediction files. The analysis is run once
+per seed; the seeds are compared rather than pooled.
 
-**Dual-KD conserves the dense teacher's uncertainty and pays for it in accuracy —
-but it is what makes a dense-calibrated threshold survive compression.**
-Each cell is `dual_kl - kl_only`: negative entropy MAE means better fidelity,
-positive accuracy means Dual-KD wins.
+**Dual-KD conserves the dense teacher's uncertainty. Its effect on accuracy is not
+resolved by three seeds, but it is what makes a dense-calibrated threshold survive
+compression.** Each cell is `dual_kl - kl_only`, given as the **mean ± sample
+standard deviation over the three seeds**: negative entropy MAE means better
+fidelity, positive accuracy means Dual-KD wins. With n=3 the standard deviation is
+a noisy estimate, so read it as a rough scale for seed sensitivity rather than a
+confidence interval.
 
 | model | dataset | Δacc .75 | Δacc .50 | Δacc .25 | ΔentMAE .75 | ΔentMAE .50 | ΔentMAE .25 |
 |---|---|---|---|---|---|---|---|
-| 1.5B | ARC-Challenge | +0.0017 | -0.0205 | +0.0026 | -0.0015 | -0.0055 | -0.0205 |
-| 1.5B | MMLU-AUX | +0.0011 | -0.0154 | -0.0039 | -0.0657 | -0.1779 | -0.3482 |
-| 1.5B | MMLU-Pro | -0.0162 | -0.0071 | +0.0033 | -0.0233 | -0.0382 | -0.0653 |
-| 1.5B | HellaSwag | -0.0020 | -0.0093 | -0.0212 | -0.0003 | -0.0002 | +0.0031 |
-| 3B | ARC-Challenge | +0.0171 | +0.0247 | -0.0247 | -0.0148 | -0.0167 | -0.0181 |
-| 3B | MMLU-AUX | -0.0154 | -0.0438 | -0.0179 | -0.1676 | -0.3393 | -0.6504 |
-| 3B | MMLU-Pro | -0.0017 | -0.0112 | -0.0042 | -0.0642 | -0.1564 | -0.3066 |
-| 3B | HellaSwag | -0.0052 | -0.0132 | -0.0884 | +0.0002 | +0.0001 | +0.0057 |
-| 7B | ARC-Challenge | -0.0085 | +0.0196 | -0.0102 | -0.0144 | -0.0230 | -0.0302 |
-| 7B | MMLU-AUX | -0.0023 | -0.0274 | -0.1127 | -0.1209 | -0.3102 | -0.4866 |
-| 7B | MMLU-Pro | -0.0029 | -0.0191 | -0.0432 | -0.0499 | -0.0896 | -0.1933 |
-| 7B | HellaSwag | +0.0017 | -0.0032 | -0.0182 | +0.0003 | -0.0003 | +0.0019 |
+| 1.5B | ARC-Challenge | +0.0034 ± 0.0045 | -0.0082 ± 0.0107 | +0.0023 ± 0.0005 | -0.0039 ± 0.0024 | -0.0035 ± 0.0023 | -0.0228 ± 0.0025 |
+| 1.5B | MMLU-AUX | +0.0017 ± 0.0009 | -0.0111 ± 0.0040 | -0.0091 ± 0.0099 | -0.0741 ± 0.0076 | -0.1689 ± 0.0102 | -0.3417 ± 0.0075 |
+| 1.5B | MMLU-Pro | -0.0051 ± 0.0099 | -0.0004 ± 0.0058 | +0.0022 ± 0.0010 | -0.0226 ± 0.0007 | -0.0394 ± 0.0014 | -0.0743 ± 0.0099 |
+| 1.5B | HellaSwag | -0.0036 ± 0.0014 | -0.0090 ± 0.0015 | -0.0161 ± 0.0070 | -0.0003 ± 0.0001 | -0.0001 ± 0.0001 | +0.0009 ± 0.0023 |
+| 3B | ARC-Challenge | +0.0054 ± 0.0160 | +0.0230 ± 0.0045 | -0.0014 ± 0.0202 | -0.0137 ± 0.0010 | -0.0155 ± 0.0014 | -0.0332 ± 0.0152 |
+| 3B | MMLU-AUX | -0.0107 ± 0.0055 | -0.0526 ± 0.0195 | -0.0108 ± 0.0153 | -0.1636 ± 0.0066 | -0.3318 ± 0.0133 | -0.6464 ± 0.0067 |
+| 3B | MMLU-Pro | +0.0026 ± 0.0074 | -0.0104 ± 0.0014 | +0.0007 ± 0.0052 | -0.0641 ± 0.0038 | -0.1535 ± 0.0049 | -0.3141 ± 0.0101 |
+| 3B | HellaSwag | -0.0023 ± 0.0027 | -0.0042 ± 0.0113 | -0.0100 ± 0.0849 | -0.0004 ± 0.0006 | +0.0001 ± 0.0018 | -0.0080 ± 0.0142 |
+| 7B | ARC-Challenge | -0.0054 ± 0.0027 | +0.0253 ± 0.0137 | -0.0068 ± 0.0173 | -0.0165 ± 0.0018 | -0.0205 ± 0.0030 | -0.0267 ± 0.0039 |
+| 7B | MMLU-AUX | -0.0006 ± 0.0025 | -0.0296 ± 0.0086 | -0.1177 ± 0.0079 | -0.1292 ± 0.0119 | -0.2981 ± 0.0109 | -0.4863 ± 0.0009 |
+| 7B | MMLU-Pro | -0.0014 ± 0.0030 | -0.0087 ± 0.0090 | -0.0068 ± 0.0504 | -0.0463 ± 0.0037 | -0.0878 ± 0.0079 | -0.2249 ± 0.0544 |
+| 7B | HellaSwag | +0.0006 ± 0.0014 | +0.0015 ± 0.0055 | -0.0176 ± 0.0118 | -0.0007 ± 0.0009 | -0.0004 ± 0.0003 | -0.0005 ± 0.0023 |
 
-Dual-KD is better on entropy fidelity in **30/36** cells, on accuracy in **8/36**,
-and on ECE in **8/36**. Of 72 paired bootstraps on error AUROC/AUPRC, 8 favour
-Dual-KD significantly and 13 favour vanilla KL; the rest cross zero.
+Counts per seed (seed 1 / 2 / 3). Dual-KD is better on entropy fidelity in
+**30 / 33 / 36** of 36 cells, on accuracy in **8 / 13 / 16**, and on ECE in
+**8 / 8 / 9**. Of 72 paired bootstraps on error AUROC/AUPRC per seed, **8 / 6 / 7**
+favour Dual-KD significantly and **13 / 11 / 9** favour vanilla KL; the rest cross zero.
+
+The entropy-fidelity result is stable and the accuracy result is not. In **20 of 36**
+accuracy cells the absolute mean is smaller than the standard deviation, so the sign
+is not resolved by three seeds; the same is true of only **7 of 36** entropy MAE
+cells, all HellaSwag, where the effect is within ±0.008 of zero. The largest apparent
+accuracy cost in the earlier single-seed table, 3B/HellaSwag at 0.25 retention,
+was -0.0884; over three seeds it is **-0.0100 ± 0.0849**. Treat a per-cell accuracy
+difference as seed noise unless its mean clears its standard deviation — 7B/MMLU-AUX
+at 0.25 retention (-0.1177 ± 0.0079) is the clearest case that does, against
+entropy MAE effects such as -0.4863 ± 0.0009 in the same cell.
 
 ### Threshold compatibility
 
 Applying the **dense** model's entropy threshold, unchanged, to the compressed model.
+These threshold numbers are **seed 1 only**; the per-seed threshold sweep has not been rerun.
 `student_rate` is the fraction the compressed model then escalates; it should equal the
 target. This is where the conserved uncertainty pays off.
 

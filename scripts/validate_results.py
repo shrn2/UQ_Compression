@@ -31,6 +31,11 @@ def read_csv(path: Path) -> list[dict[str, str]]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=Path("configs/experiment.yaml"))
+    parser.add_argument(
+        "--seed",
+        type=int,
+        help="Gate-training seed to validate. Defaults to the configured seed.",
+    )
     parser.add_argument("--root", type=Path)
     parser.add_argument("--source-root", type=Path)
     parser.add_argument("--downstream", type=Path)
@@ -42,7 +47,7 @@ def main() -> int:
     source_root = args.source_root or Path(config["source_root"])
     models = tuple(config["models"])
     retentions = config["retentions"]
-    seed = int(config["training"]["seed"])
+    seed = args.seed if args.seed is not None else int(config["training"]["seed"])
     epochs = int(config["training"]["epochs"])
     checks: dict[str, object] = {}
     examples = {}

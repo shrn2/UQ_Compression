@@ -1,0 +1,72 @@
+{
+  "bootstrap_replicates": 5000,
+  "choice_objective": "full differentiable length-normalized continuation likelihood",
+  "counts": {
+    "bootstrap": 72,
+    "cascade": 864,
+    "evaluation_summary": 72,
+    "per_example": 461772,
+    "training_audit": 72,
+    "validation_summary": 72
+  },
+  "datasets": {
+    "arc_challenge": {
+      "label": "ARC-Challenge",
+      "partition_counts": {
+        "evaluation": 1172,
+        "gate_training": 1119,
+        "lambda_selection": 299
+      },
+      "protocol": "official disjoint train/validation/test splits"
+    },
+    "hellaswag": {
+      "label": "HellaSwag",
+      "partition_counts": {
+        "evaluation": 8034,
+        "gate_training": 39905,
+        "lambda_selection": 2008
+      },
+      "protocol": "official train plus deterministic 20/80 split of labeled validation"
+    },
+    "mmlu_aux": {
+      "label": "MMLU-AUX",
+      "partition_counts": {
+        "evaluation": 14042,
+        "gate_training": 99842,
+        "lambda_selection": 1531
+      },
+      "protocol": "official auxiliary_train/validation/test splits"
+    },
+    "mmlu_pro": {
+      "label": "MMLU-Pro",
+      "partition_counts": {
+        "evaluation": 2406,
+        "gate_training": 9626,
+        "lambda_selection": 70
+      },
+      "protocol": "category-stratified 80/20 internal split of labeled official test"
+    }
+  },
+  "epochs": 2,
+  "method_definitions": {
+    "dual_kl": "forward KL with global entropy-equality dual ascent",
+    "kl_only": "teacher-to-student forward KL"
+  },
+  "methods": [
+    "kl_only",
+    "dual_kl"
+  ],
+  "models": [
+    "1p5b_bf16",
+    "3b_bf16",
+    "7b_bf16"
+  ],
+  "retentions": [
+    0.75,
+    0.5,
+    0.25
+  ],
+  "sampling": "exact without-replacement epochs",
+  "seed": 2,
+  "study": "dual_kd_vs_kl"
+}

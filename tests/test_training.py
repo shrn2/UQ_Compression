@@ -78,3 +78,21 @@ def test_full_choice_probabilities_use_tokens_after_shared_prefix():
     assert probabilities[0, 0] > probabilities[0, 1]
     (-probabilities[0, 0].log()).backward()
     assert model.gate.grad is not None and model.gate.grad.abs() > 0
+
+
+def test_nonfinite_gradient_is_detectable_before_it_poisons_the_gates():
+    """The training loop skips a step when clip_grad_norm_ reports a non-finite
+    norm. Pin the two torch behaviours that guard depends on: the reported norm
+    goes non-finite, and neither clipping nor clamping clears the NaN."""
+
+    logits = torch.nn.Parameter(torch.zeros(1, 4))
+    optimizer = torch.optim.Adam([logits], lr=0.05)
+    logits.grad = torch.tensor([[float("nan"), 1.0, 1.0, 1.0]])
+
+    grad_norm = torch.nn.utils.clip_grad_norm_([logits], 5.0)
+    assert not torch.isfinite(grad_norm)
+
+    optimizer.step()
+    with torch.no_grad():
+        logits.sub_(logits.mean(dim=1, keepdim=True)).clamp_(-8.0, 8.0)
+    assert not torch.isfinite(logits).all()

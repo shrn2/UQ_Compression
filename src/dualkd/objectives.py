@@ -14,14 +14,25 @@ def _distributions(predictions, targets):
     return student, teacher
 
 
-def forward_kl_distillation_loss(predictions, targets):
-    """Vanilla teacher-to-student KL with diagnostic entropy statistics."""
+def per_example_terms(predictions, targets):
+    """Return per-example forward KL and entropy bias, without reducing.
+
+    Both supported objectives are means of per-example terms, so a caller that
+    processes a batch in microbatches can weight and backward each piece
+    separately and still accumulate the exact full-batch gradient.
+    """
 
     student, teacher = _distributions(predictions, targets)
     kl = (teacher * (teacher.log() - student.log())).sum(dim=1)
     teacher_entropy = -(teacher * teacher.log()).sum(dim=1).detach()
     student_entropy = -(student * student.log()).sum(dim=1)
-    entropy_bias = student_entropy - teacher_entropy
+    return kl, student_entropy - teacher_entropy
+
+
+def forward_kl_distillation_loss(predictions, targets):
+    """Vanilla teacher-to-student KL with diagnostic entropy statistics."""
+
+    kl, entropy_bias = per_example_terms(predictions, targets)
     total = kl.mean()
     return total, {
         "loss": total.detach(),
@@ -41,15 +52,11 @@ def dual_constrained_distillation_loss(
 
     import torch
 
-    student, teacher = _distributions(predictions, targets)
-    if stratum_labels.shape != (student.shape[0],):
+    if stratum_labels.shape != (predictions.shape[0],):
         raise ValueError("stratum labels must have one entry per example")
     if dual_variables.ndim not in {0, 1}:
         raise ValueError("dual variables must be scalar or one-dimensional")
-    kl = (teacher * (teacher.log() - student.log())).sum(dim=1)
-    teacher_entropy = -(teacher * teacher.log()).sum(dim=1).detach()
-    student_entropy = -(student * student.log()).sum(dim=1)
-    entropy_bias = student_entropy - teacher_entropy
+    kl, entropy_bias = per_example_terms(predictions, targets)
     if dual_variables.ndim == 0:
         dual_term = dual_variables.detach() * entropy_bias.mean()
     else:
