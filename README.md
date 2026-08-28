@@ -77,22 +77,29 @@ entropy MAE effects such as -0.4863 ± 0.0009 in the same cell.
 ### Threshold compatibility
 
 Applying the **dense** model's entropy threshold, unchanged, to the compressed model.
-These threshold numbers are **seed 1 only**; the per-seed threshold sweep has not been rerun.
 `student_rate` is the fraction the compressed model then escalates; it should equal the
-target. This is where the conserved uncertainty pays off.
+target. This is where the conserved uncertainty pays off. Cells are the mean ± sample
+standard deviation over the three seeds.
 
 | target rate | mean abs rate error KL | Dual-KD | mean disagreement KL | Dual-KD |
 |---|---|---|---|---|
-| 0.05 | 0.2509 | **0.0292** | 0.2865 | **0.0693** |
-| 0.10 | 0.2951 | **0.0487** | 0.3475 | **0.1214** |
-| 0.20 | 0.3346 | **0.0842** | 0.3991 | **0.2072** |
-| 0.30 | 0.3491 | **0.1072** | 0.4081 | **0.2724** |
+| 0.05 | 0.2552 ± 0.0058 | **0.0290 ± 0.0002** | 0.2903 ± 0.0056 | **0.0693 ± 0.0000** |
+| 0.10 | 0.3024 ± 0.0079 | **0.0475 ± 0.0011** | 0.3539 ± 0.0075 | **0.1204 ± 0.0010** |
+| 0.20 | 0.3408 ± 0.0057 | **0.0807 ± 0.0031** | 0.4045 ± 0.0052 | **0.2060 ± 0.0018** |
+| 0.30 | 0.3545 ± 0.0056 | **0.1026 ± 0.0041** | 0.4129 ± 0.0046 | **0.2725 ± 0.0024** |
 
-Dual-KD transfers the dense threshold better in **143/144** paired conditions and
-lowers escalation disagreement in **142/144**. Under vanilla KL the dense threshold
-collapses entirely at aggressive compression: at 25% retention on MMLU-AUX it escalates
-100% of inputs instead of the intended 10%, because the compressed entropy distribution has
-shifted wholesale past the threshold. Dual-KD keeps the operating point usable.
+This is the most seed-stable result in the study: the standard deviations are two
+orders of magnitude below the effects, where 20 of 36 accuracy cells cannot clear
+their own. Per seed (1 / 2 / 3), Dual-KD transfers the dense threshold better in
+**143 / 144 / 143** of 144 paired conditions and lowers escalation disagreement in
+**142 / 141 / 141**.
+
+Under vanilla KL the dense threshold collapses at aggressive compression: at 25%
+retention on MMLU-AUX, against an intended 10% escalation rate, it escalates
+essentially every input for 1.5B and 3B (0.9987 to 1.0000 across seeds) and 87-88%
+for 7B, because the compressed entropy distribution has shifted wholesale past the
+threshold. Dual-KD escalates 0% in the same cells — a miss in the other direction,
+but a far smaller one — and keeps the operating point usable at the rates above.
 
 HellaSwag is the control throughout: vanilla KL already reaches 0.02-0.09 entropy error
 there, so the constraint has nothing to close and Dual-KD changes little.
