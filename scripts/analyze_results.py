@@ -106,6 +106,15 @@ def main() -> int:
     parser.add_argument("--datasets", nargs="+", choices=SUPPORTED_DATASETS)
     parser.add_argument("--models", nargs="+")
     parser.add_argument("--bootstrap-replicates", type=int)
+    parser.add_argument(
+        "--seed",
+        type=int,
+        help=(
+            "Gate-training seed to analyse. Defaults to the configured seed. "
+            "The analysis is single-seed by design; run it once per seed and "
+            "compare the outputs rather than pooling them."
+        ),
+    )
     args = parser.parse_args()
     config = load_config(args.config)
     root = args.root or Path(config["output_root"])
@@ -117,7 +126,7 @@ def main() -> int:
     if any(model not in config["models"] for model in models):
         raise ValueError("requested model is absent from the configuration")
     retentions = config["retentions"]
-    seed = int(config["training"]["seed"])
+    seed = args.seed if args.seed is not None else int(config["training"]["seed"])
     reps = args.bootstrap_replicates or int(config["evaluation"]["bootstrap_replicates"])
     if reps < 1000:
         raise ValueError("use at least 1,000 paired bootstrap replicates")

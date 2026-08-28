@@ -19,6 +19,7 @@ from .modeling import ffn_modules, transformer_blocks
 from .objectives import (
     dual_constrained_distillation_loss,
     forward_kl_distillation_loss,
+    per_example_terms,
     update_dual_variables,
 )
 
@@ -96,14 +97,19 @@ def stratified_epoch_batches(
             yield np.asarray(batch, dtype=np.int64)
 
 
-def _choice_probabilities(
+def _choice_probability_microbatches(
     scorer: HFCausalLMScorer,
     examples: Sequence[MultipleChoiceExample],
     *,
     choice_count: int,
     choice_microbatch_size: int | None = None,
 ):
-    """Differentiable full-choice continuation probabilities for gate training."""
+    """Yield (start, stop, probabilities) per microbatch, each with its own graph.
+
+    Yielding rather than concatenating lets the caller backward one microbatch at
+    a time and release its autograd graph, which is what keeps 7B/MMLU-AUX inside
+    a 96GB card. See _choice_probabilities for the concatenated equivalent.
+    """
 
     torch = scorer.torch
     if not examples or choice_count < 2:
@@ -121,7 +127,6 @@ def _choice_probabilities(
         raise ValueError("choice_count is smaller than the batch choice count")
     max_length = int(getattr(scorer.model.config, "max_position_embeddings", 2048))
     microbatch_size = choice_microbatch_size or len(examples)
-    probability_chunks = []
 
     if all(len(choice) == 1 for choices in tokenized_choices for choice in choices):
         for start in range(0, len(examples), microbatch_size):
@@ -150,8 +155,8 @@ def _choice_probabilities(
                     device=logits.device,
                 )
                 padded[row, : len(choices)] = logits[row].gather(0, choice_ids)
-            probability_chunks.append(torch.softmax(padded, dim=1))
-        return torch.cat(probability_chunks, dim=0)
+            yield start, stop, torch.softmax(padded, dim=1)
+        return
 
     for start in range(0, len(examples), microbatch_size):
         stop = min(start + microbatch_size, len(examples))
@@ -190,8 +195,29 @@ def _choice_probabilities(
         for row, count in enumerate(choices_per_example[start:stop]):
             padded[row, :count] = torch.stack(scores[cursor : cursor + count])
             cursor += count
-        probability_chunks.append(torch.softmax(padded, dim=1))
-    return torch.cat(probability_chunks, dim=0)
+        yield start, stop, torch.softmax(padded, dim=1)
+
+
+def _choice_probabilities(
+    scorer: HFCausalLMScorer,
+    examples: Sequence[MultipleChoiceExample],
+    *,
+    choice_count: int,
+    choice_microbatch_size: int | None = None,
+):
+    """Differentiable full-choice continuation probabilities for gate training."""
+
+    torch = scorer.torch
+    chunks = [
+        probabilities
+        for _, _, probabilities in _choice_probability_microbatches(
+            scorer,
+            examples,
+            choice_count=choice_count,
+            choice_microbatch_size=choice_microbatch_size,
+        )
+    ]
+    return torch.cat(chunks, dim=0)
 
 
 def _load_training_inputs(data_path: Path, calibration_path: Path):
@@ -307,6 +333,10 @@ def train_gate_masks(
         if method == "dual_kl"
         else None
     )
+    if dual_variable is not None and dual_variable.ndim != 0:
+        # The per-microbatch backward below assumes a separable (scalar) dual
+        # term; a per-stratum dual does not decompose across microbatches.
+        raise ValueError("training loop supports only a scalar dual variable")
 
     current_gates = [torch.ones(channels, device=gate_device) for _ in blocks]
     handles = []
@@ -350,6 +380,8 @@ def train_gate_masks(
     generator.manual_seed(seed)
     trace = []
     initial_mask = None
+    nonfinite_steps: list[dict] = []
+    nonfinite_tolerance = max(10, int(0.01 * steps))
     if torch.cuda.is_available():
         torch.cuda.reset_peak_memory_stats()
     started = time.perf_counter()
@@ -372,36 +404,108 @@ def train_gate_masks(
             targets = torch.tensor(dense[batch_indices], dtype=torch.float32, device=gate_device)
             batch_strata = torch.tensor(strata[batch_indices], dtype=torch.long, device=gate_device)
             optimizer.zero_grad(set_to_none=True)
-            predictions = _choice_probabilities(
+            entropy_bias = None
+            components = None
+            # A single non-finite batch used to poison the gates permanently:
+            # clip_grad_norm_ scales every gradient by a NaN total norm, Adam
+            # writes NaN into gate_logits, and clamp_ propagates rather than
+            # clears it. Skip such steps instead, and fail loudly if they are
+            # frequent enough that the run is no longer a faithful condition.
+            skip_reason = None
+            # Both objectives are means of per-example terms, so each microbatch
+            # can be weighted by 1/batch and backwarded on its own. Only one
+            # microbatch's activations are alive at a time, which is what keeps
+            # 7B/MMLU-AUX inside a 96GB card; the accumulated gradient is the
+            # same one a single full-batch backward would produce. retain_graph
+            # keeps the shared gate subgraph alive across microbatches, while
+            # dropping each microbatch's own references frees its activations.
+            batch_total = len(batch_examples)
+            kl_parts, bias_parts, prediction_parts = [], [], []
+            for start, stop, probabilities in _choice_probability_microbatches(
                 scorer,
                 batch_examples,
                 choice_count=int(dense.shape[1]),
                 choice_microbatch_size=choice_microbatch_size,
-            )
-            entropy_bias = None
-            if method == "dual_kl":
-                loss, components, entropy_bias = dual_constrained_distillation_loss(
-                    predictions, targets, batch_strata, dual_variable
+            ):
+                if not torch.isfinite(probabilities).all():
+                    skip_reason = "nonfinite_choice_probabilities"
+                    del probabilities
+                    break
+                kl_part, bias_part = per_example_terms(probabilities, targets[start:stop])
+                weighted = kl_part.sum() / batch_total
+                if dual_variable is not None:
+                    weighted = weighted + dual_variable.detach() * (
+                        bias_part.sum() / batch_total
+                    )
+                if not torch.isfinite(weighted):
+                    skip_reason = "nonfinite_loss"
+                    del probabilities, kl_part, bias_part, weighted
+                    break
+                weighted.backward(retain_graph=True)
+                kl_parts.append(kl_part.detach())
+                bias_parts.append(bias_part.detach())
+                prediction_parts.append(probabilities.detach())
+                del probabilities, kl_part, bias_part, weighted
+            if skip_reason is None:
+                kl_values = torch.cat(kl_parts)
+                entropy_bias = torch.cat(bias_parts)
+                predictions = torch.cat(prediction_parts)
+                components = {
+                    "loss": kl_values.mean(),
+                    "kl": kl_values.mean(),
+                    "entropy_bias": entropy_bias.mean(),
+                    "entropy_mae": entropy_bias.abs().mean(),
+                }
+                if dual_variable is not None:
+                    dual_term = dual_variable.detach() * entropy_bias.mean()
+                    components["loss"] = kl_values.mean() + dual_term
+                    components["dual_term"] = dual_term
+                answers = torch.tensor(
+                    [example.answer for example in batch_examples],
+                    dtype=torch.long,
+                    device=predictions.device,
                 )
-            else:
-                loss, components = forward_kl_distillation_loss(predictions, targets)
-            answers = torch.tensor(
-                [example.answer for example in batch_examples],
-                dtype=torch.long,
-                device=predictions.device,
-            )
-            batch_accuracy = (predictions.argmax(dim=1) == answers).float().mean().detach()
-            loss.backward()
-            torch.nn.utils.clip_grad_norm_([gate_logits], 5.0)
-            optimizer.step()
-            if dual_variable is not None:
-                update_dual_variables(
-                    dual_variable,
-                    entropy_bias,
-                    learning_rate=dual_learning_rate,
+                batch_accuracy = (predictions.argmax(dim=1) == answers).float().mean().detach()
+                grad_norm = torch.nn.utils.clip_grad_norm_([gate_logits], 5.0)
+                if torch.isfinite(grad_norm):
+                    optimizer.step()
+                    if dual_variable is not None:
+                        update_dual_variables(
+                            dual_variable,
+                            entropy_bias,
+                            learning_rate=dual_learning_rate,
+                        )
+                    with torch.no_grad():
+                        gate_logits.sub_(gate_logits.mean(dim=1, keepdim=True)).clamp_(-8.0, 8.0)
+                    if not torch.isfinite(gate_logits).all():
+                        raise RuntimeError(
+                            f"gate logits became non-finite at step {step + 1}; refusing to "
+                            "continue training with poisoned parameters"
+                        )
+                else:
+                    skip_reason = "nonfinite_gradient"
+            if skip_reason is not None:
+                optimizer.zero_grad(set_to_none=True)
+                nonfinite_steps.append({"step": step + 1, "reason": skip_reason})
+                if len(nonfinite_steps) > nonfinite_tolerance:
+                    raise RuntimeError(
+                        f"{len(nonfinite_steps)} non-finite steps exceeded the tolerance of "
+                        f"{nonfinite_tolerance} for this {steps}-step run; the most recent was "
+                        f"{skip_reason} at step {step + 1}"
+                    )
+                print(
+                    f"{method} step {step + 1}/{steps} skipped ({skip_reason}); "
+                    f"{len(nonfinite_steps)}/{nonfinite_tolerance} tolerated",
+                    flush=True,
                 )
-            with torch.no_grad():
-                gate_logits.sub_(gate_logits.mean(dim=1, keepdim=True)).clamp_(-8.0, 8.0)
+                current_gates[:] = [None] * len(current_gates)
+                del targets, batch_strata, gates, hard
+                del kl_parts, bias_parts, prediction_parts
+                if entropy_bias is not None:
+                    del entropy_bias
+                if (step + 1) % 25 == 0:
+                    clear_cuda()
+                continue
             if step == 0 or (step + 1) % 25 == 0 or step + 1 == steps:
                 deterministic = torch.topk(gate_logits.detach(), keep, dim=1).indices
                 current_mask = torch.zeros_like(gate_logits, dtype=torch.bool).scatter_(
@@ -437,7 +541,8 @@ def train_gate_masks(
                 if wandb_run is not None:
                     wandb_run.log(row, step=step + 1)
             current_gates[:] = [None] * len(current_gates)
-            del predictions, loss, components, targets, batch_strata, gates, hard, answers
+            del predictions, components, targets, batch_strata, gates, hard, answers
+            del kl_parts, bias_parts, prediction_parts, kl_values
             if entropy_bias is not None:
                 del entropy_bias
             if (step + 1) % 25 == 0:
@@ -446,6 +551,12 @@ def train_gate_masks(
         for handle in handles:
             handle.remove()
 
+    # argsort on non-finite logits returns index order, which produces a mask
+    # that looks valid but carries no learned signal. Never write one.
+    if not torch.isfinite(gate_logits.detach()).all():
+        raise RuntimeError(
+            "refusing to derive a mask from non-finite gate logits; the run diverged"
+        )
     final_order = torch.argsort(gate_logits.detach(), dim=1, descending=True).cpu().numpy()
     final_masks = np.sort(final_order[:, :keep], axis=1)
     initial_order = np.argsort(-_initial_gate_logits(importance), axis=1, kind="stable")
@@ -485,6 +596,9 @@ def train_gate_masks(
         "sampling_coverage": coverage,
         "seed": seed,
         "retained_overlap_with_initial_baseline": float(overlap),
+        "nonfinite_steps_skipped": len(nonfinite_steps),
+        "nonfinite_step_tolerance": nonfinite_tolerance,
+        "nonfinite_steps": nonfinite_steps[:50],
         "training_seconds": time.perf_counter() - started,
         "peak_cuda_memory_gib": (
             float(torch.cuda.max_memory_allocated() / 1024**3)

@@ -60,3 +60,30 @@ def test_per_stratum_duals_do_not_cancel():
         duals, bias, learning_rate=0.5, stratum_labels=strata
     )
     assert torch.allclose(duals, torch.tensor([0.1, -0.15, 0.0]))
+
+
+def test_microbatched_backward_matches_full_batch_gradient():
+    """Per-microbatch backward must accumulate the exact full-batch gradient.
+
+    The training loop relies on both objectives being means of per-example
+    terms, so it weights each microbatch by 1/batch and backwards it alone.
+    """
+
+    from dualkd.objectives import per_example_terms
+
+    def gradient(microbatch):
+        torch.manual_seed(0)
+        parameter = torch.nn.Parameter(torch.randn(6, 4))
+        targets = torch.softmax(torch.randn(6, 4), dim=1)
+        dual = torch.tensor(0.7)
+        for start in range(0, 6, microbatch):
+            stop = start + microbatch
+            predictions = torch.softmax(parameter[start:stop], dim=1)
+            kl, bias = per_example_terms(predictions, targets[start:stop])
+            weighted = kl.sum() / 6 + dual * (bias.sum() / 6)
+            weighted.backward(retain_graph=True)
+        return parameter.grad.clone()
+
+    full = gradient(6)
+    for microbatch in (1, 2, 3):
+        assert torch.allclose(gradient(microbatch), full, atol=1e-6), microbatch
