@@ -101,6 +101,17 @@ resolved by three seeds:
 | ΔH-MAE | 34/36 | 7/36 |
 | ΔD_τ | **36/36** | **0/36** |
 
+The D_τ result does not depend on which target escalation rate is used to set the
+threshold. Computed at each rate separately rather than averaged:
+
+| target rate | Dual-KD better | not resolved | mean ΔD_τ | largest std |
+|---|---|---|---|---|
+| 0.05 | 36/36 | 1/36 | -0.2210 | 0.1250 |
+| 0.10 | 36/36 | 2/36 | -0.2334 | 0.1511 |
+| 0.20 | 36/36 | 2/36 | -0.1985 | 0.1307 |
+| 0.30 | 36/36 | 1/36 | -0.1404 | 0.0942 |
+| **averaged (reported above)** | 36/36 | 0/36 | -0.1983 | 0.1234 |
+
 Per-seed counts (seed 1 / 2 / 3): Dual-KD is better on entropy fidelity in
 **30 / 33 / 36** of 36 cells, on accuracy in **8 / 13 / 16**, and on ECE in
 **8 / 8 / 9**. Of 72 paired bootstraps on error AUROC/AUPRC per seed, **8 / 6 / 7**
